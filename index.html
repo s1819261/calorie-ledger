@@ -352,11 +352,11 @@
   }
 
   async function storageGet(key){
-    try{ var res = await window.storage.get(key, false); return res ? JSON.parse(res.value) : null; }
+    try{ var raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : null; }
     catch(e){ return null; }
   }
   async function storageSet(key, value){
-    try{ await window.storage.set(key, JSON.stringify(value), false); }
+    try{ localStorage.setItem(key, JSON.stringify(value)); }
     catch(e){ showToast('Could not save — try again'); }
   }
 
