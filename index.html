@@ -541,11 +541,21 @@
     var resultsEl=document.getElementById('search-results');
     resultsEl.innerHTML='<div class="loading-row"><div class="spinner"></div>Searching…</div>';
     try{
-      var url='https://world.openfoodfacts.org/cgi/search.pl?search_terms='+encodeURIComponent(q)+
-        '&search_simple=1&action=process&json=1&page_size=8&fields=code,product_name,brands,nutriments,serving_size,serving_quantity';
-      var res=await fetch(url);
-      var data=await res.json();
-      var products=(data.products||[]).filter(function(p){ return p.product_name; });
+      var fields='code,product_name,brands,nutriments,serving_size,serving_quantity';
+      var nameUrl='https://world.openfoodfacts.org/cgi/search.pl?search_terms='+encodeURIComponent(q)+
+        '&search_simple=1&action=process&json=1&page_size=8&fields='+fields;
+      var brandUrl='https://world.openfoodfacts.org/cgi/search.pl?tagtype_0=brands&tag_contains_0=contains&tag_0='+
+        encodeURIComponent(q)+'&action=process&json=1&page_size=8&fields='+fields;
+      var results=await Promise.all([fetch(nameUrl), fetch(brandUrl)]);
+      var dataArr=await Promise.all(results.map(function(r){ return r.json(); }));
+      var seen={};
+      var products=[];
+      dataArr.forEach(function(data){
+        (data.products||[]).forEach(function(p){
+          if(p.product_name && !seen[p.code]){ seen[p.code]=true; products.push(p); }
+        });
+      });
+      products=products.slice(0,8);
       if(products.length===0){
         resultsEl.innerHTML='<div class="empty-state">No matches. Try a different search or add it manually.</div>';
         return;
