@@ -129,6 +129,47 @@
   .search-result .sr-cal{font-family:'IBM Plex Mono',monospace; font-size:13px; font-weight:600; white-space:nowrap;}
 
   .section-title{font-family:'Fraunces',serif; font-weight:600; font-size:17px; margin:24px 20px 10px;}
+
+  .macro-card{
+    margin:18px 20px 0; background:var(--surface); border:1px solid var(--line);
+    border-radius:14px; padding:14px 16px 16px;
+  }
+  .macro-card-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;}
+  .seg-toggle{display:flex; background:var(--paper); border-radius:20px; padding:3px; gap:2px;}
+  .seg-btn{
+    border:none; background:none; cursor:pointer; padding:6px 12px; border-radius:16px;
+    font-family:'Inter',sans-serif; font-size:12px; font-weight:600; color:var(--ink-soft);
+  }
+  .seg-btn.active{background:var(--herb); color:#fff;}
+  .macro-chart-row{display:flex; align-items:center; gap:20px;}
+  .macro-chart-wrap{position:relative; width:132px; height:132px; flex:none;}
+  .macro-chart-center{
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    display:flex; flex-direction:column; align-items:center; pointer-events:none;
+  }
+  .mc-cal{font-family:'IBM Plex Mono',monospace; font-size:19px; font-weight:600; line-height:1;}
+  .mc-cal-label{font-size:10px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.06em; margin-top:2px;}
+  .content-grid{display:block;}
+  .col-calories .label-card{margin:18px 20px 0;}
+  .col-log .actions{margin:18px 20px 0;}
+  @media (min-width:760px){
+    body{padding:32px 16px;}
+    #app{max-width:900px;}
+    .content-grid{
+      display:grid; grid-template-columns:300px 1fr; gap:0; align-items:start;
+    }
+    .col-calories{position:sticky; top:24px;}
+    .col-calories .label-card{margin:18px 0 0 20px;}
+    .col-log .actions{margin:18px 20px 0 20px;}
+  }
+
+  .week-bars{margin-top:16px; padding-top:14px; border-top:1px solid var(--line);}
+  .week-bars-label{font-size:12px; font-weight:600; color:var(--ink-soft); margin:0 0 10px;}
+  .legend-row{display:flex; align-items:center; gap:8px; font-size:12.5px;}
+  .legend-dot{width:10px; height:10px; border-radius:50%; flex:none;}
+  .legend-label{color:var(--ink-soft); flex:1;}
+  .legend-val{font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:12px;}
+  .legend-pct{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink-soft); min-width:32px; text-align:right;}
   .log-list{display:flex; flex-direction:column; gap:8px; padding:0 20px;}
   .food-card{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:12px 14px;}
   .food-top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px;}
@@ -229,44 +270,74 @@
     </div>
   </header>
 
-  <div class="label-card">
-    <p class="label-title">Daily total</p>
-    <div class="rule-thick"></div>
-    <div class="cal-row">
-      <span class="cal-label">Calories</span>
-      <span class="cal-value" id="cal-total">0</span>
+  <div class="content-grid">
+    <div class="col-calories">
+      <div class="label-card">
+        <p class="label-title">Daily total</p>
+        <div class="rule-thick"></div>
+        <div class="cal-row">
+          <span class="cal-label">Calories</span>
+          <span class="cal-value" id="cal-total">0</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" id="cal-progress" style="width:0%"></div></div>
+        <div class="goal-row">
+          <span>Goal: <span class="editable" id="goal-display">1350</span> cal</span>
+          <span id="remaining-text">1350 left</span>
+        </div>
+        <div class="rule-thin"></div>
+        <div class="macro-row"><span class="m-label">Protein</span><span class="m-value" id="m-protein">0 g</span></div>
+        <div class="macro-row"><span class="m-label">Carbs</span><span class="m-value" id="m-carbs">0 g</span></div>
+        <div class="macro-row"><span class="m-label">Fat</span><span class="m-value" id="m-fat">0 g</span></div>
+        <div class="rule-thick" style="margin-top:6px;"></div>
+      </div>
     </div>
-    <div class="progress-track"><div class="progress-fill" id="cal-progress" style="width:0%"></div></div>
-    <div class="goal-row">
-      <span>Goal: <span class="editable" id="goal-display">1350</span> cal</span>
-      <span id="remaining-text">1350 left</span>
+
+    <div class="col-log">
+      <div class="actions">
+        <button class="action-btn primary" id="btn-scan">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V5a1 1 0 011-1h2M20 7V5a1 1 0 00-1-1h-2M4 17v2a1 1 0 001 1h2M20 17v2a1 1 0 01-1 1h-2M7 8v8M10 8v8M13 8v8M16 8v8"/></svg>
+          Scan barcode
+        </button>
+        <button class="action-btn secondary" id="btn-manual">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          Add manually
+        </button>
+      </div>
+
+      <div class="search-row">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input type="text" id="search-input" placeholder="Or search a food by name…">
+      </div>
+      <div class="search-results" id="search-results"></div>
+
+      <p class="section-title">Today's log</p>
+      <div class="log-list" id="log-list"></div>
     </div>
-    <div class="rule-thin"></div>
-    <div class="macro-row"><span class="m-label">Protein</span><span class="m-value" id="m-protein">0 g</span></div>
-    <div class="macro-row"><span class="m-label">Carbs</span><span class="m-value" id="m-carbs">0 g</span></div>
-    <div class="macro-row"><span class="m-label">Fat</span><span class="m-value" id="m-fat">0 g</span></div>
-    <div class="rule-thick" style="margin-top:6px;"></div>
   </div>
 
-  <div class="actions">
-    <button class="action-btn primary" id="btn-scan">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7V5a1 1 0 011-1h2M20 7V5a1 1 0 00-1-1h-2M4 17v2a1 1 0 001 1h2M20 17v2a1 1 0 01-1 1h-2M7 8v8M10 8v8M13 8v8M16 8v8"/></svg>
-      Scan barcode
-    </button>
-    <button class="action-btn secondary" id="btn-manual">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-      Add manually
-    </button>
+  <div class="macro-card">
+    <div class="macro-card-head">
+      <p class="section-title" style="margin:0;">Macro breakdown</p>
+      <div class="seg-toggle">
+        <button class="seg-btn active" id="range-day" data-range="day">Today</button>
+        <button class="seg-btn" id="range-week" data-range="week">This week</button>
+      </div>
+    </div>
+    <div class="macro-chart-row">
+      <div class="macro-chart-wrap">
+        <canvas id="macro-chart" width="132" height="132"></canvas>
+        <div class="macro-chart-center">
+          <span class="mc-cal" id="mc-center-cal">0</span>
+          <span class="mc-cal-label">cal</span>
+        </div>
+      </div>
+      <div class="macro-legend" id="macro-legend"></div>
+    </div>
+    <div class="week-bars" id="week-bars" style="display:none;">
+      <p class="week-bars-label">Calories per day</p>
+      <canvas id="week-bar-chart" height="130"></canvas>
+    </div>
   </div>
-
-  <div class="search-row">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-    <input type="text" id="search-input" placeholder="Or search a food by name…">
-  </div>
-  <div class="search-results" id="search-results"></div>
-
-  <p class="section-title">Today's log</p>
-  <div class="log-list" id="log-list"></div>
 
 </div>
 
@@ -324,6 +395,7 @@
 
 <div class="toast" id="toast"></div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
 <script>
 (function(){
 
@@ -445,7 +517,144 @@
     });
   }
 
-  function renderAll(){ renderHeader(); renderTotals(); renderLog(); }
+  function renderAll(){ renderHeader(); renderTotals(); renderLog(); refreshMacroChart(); refreshWeekBars(); }
+
+  /* ---------------- macro breakdown chart ---------------- */
+  var chartRange='day';
+  var macroChart=null;
+  var weekBarChart=null;
+
+  document.getElementById('range-day').onclick=function(){ setRange('day'); };
+  document.getElementById('range-week').onclick=function(){ setRange('week'); };
+  function setRange(r){
+    chartRange=r;
+    document.getElementById('range-day').classList.toggle('active', r==='day');
+    document.getElementById('range-week').classList.toggle('active', r==='week');
+    refreshMacroChart();
+    refreshWeekBars();
+  }
+
+  async function getWeekTotals(){
+    var total={cal:0,protein:0,carbs:0,fat:0};
+    for(var i=0;i<7;i++){
+      var d=new Date(today);
+      d.setDate(d.getDate()-i);
+      var arr=await storageGet('entries:'+dateKey(d));
+      (arr||[]).forEach(function(e){
+        var mult=e.multiplier||1;
+        total.cal += (e.calories||0)*mult;
+        total.protein += (e.protein||0)*mult;
+        total.carbs += (e.carbs||0)*mult;
+        total.fat += (e.fat||0)*mult;
+      });
+    }
+    return total;
+  }
+
+  async function getWeekDailyTotals(){
+    var days=[];
+    for(var i=6;i>=0;i--){
+      var d=new Date(today);
+      d.setDate(d.getDate()-i);
+      var arr=await storageGet('entries:'+dateKey(d));
+      var cal=0;
+      (arr||[]).forEach(function(e){ cal += (e.calories||0)*(e.multiplier||1); });
+      days.push({ label: d.toLocaleDateString(undefined,{weekday:'short'}), cal: Math.round(cal), isToday: dateKey(d)===dateKey(today) });
+    }
+    return days;
+  }
+
+  async function refreshMacroChart(){
+    var totals = chartRange==='day' ? computeTotals() : await getWeekTotals();
+    var pCal=(totals.protein||0)*4, cCal=(totals.carbs||0)*4, fCal=(totals.fat||0)*9;
+    var sum=pCal+cCal+fCal;
+
+    var centerCal=document.getElementById('mc-center-cal');
+    centerCal.textContent = Math.round(totals.cal).toLocaleString();
+    var centerLabel=document.querySelector('.mc-cal-label');
+    centerLabel.textContent = chartRange==='day' ? 'cal' : 'cal / week';
+
+    var legend=document.getElementById('macro-legend');
+    var rows=[
+      {label:'Protein', grams:round(totals.protein), cal:pCal, color:'#3F6B4F'},
+      {label:'Carbs', grams:round(totals.carbs), cal:cCal, color:'#B9791E'},
+      {label:'Fat', grams:round(totals.fat), cal:fCal, color:'#AE3752'}
+    ];
+    legend.innerHTML='';
+    rows.forEach(function(r){
+      var pct = sum>0 ? Math.round((r.cal/sum)*100) : 0;
+      var row=document.createElement('div');
+      row.className='legend-row';
+      row.innerHTML='<span class="legend-dot" style="background:'+r.color+'"></span>'+
+        '<span class="legend-label">'+r.label+'</span>'+
+        '<span class="legend-val">'+r.grams+'g</span>'+
+        '<span class="legend-pct">'+pct+'%</span>';
+      legend.appendChild(row);
+    });
+    if(chartRange==='week'){
+      var avgRow=document.createElement('div');
+      avgRow.className='legend-row';
+      avgRow.style.marginTop='2px';
+      avgRow.style.paddingTop='8px';
+      avgRow.style.borderTop='1px solid var(--line)';
+      avgRow.innerHTML='<span class="legend-dot" style="background:transparent"></span>'+
+        '<span class="legend-label">Daily average</span>'+
+        '<span class="legend-val">'+Math.round(totals.cal/7)+' cal</span><span class="legend-pct"></span>';
+      legend.appendChild(avgRow);
+    }
+
+    var ctx=document.getElementById('macro-chart').getContext('2d');
+    var chartData = sum>0 ? [pCal,cCal,fCal] : [1,1,1];
+    var chartColors = sum>0 ? ['#3F6B4F','#B9791E','#AE3752'] : ['#E4E7DF','#E4E7DF','#E4E7DF'];
+    if(macroChart){
+      macroChart.data.datasets[0].data=chartData;
+      macroChart.data.datasets[0].backgroundColor=chartColors;
+      macroChart.update();
+    }else if(window.Chart){
+      macroChart=new Chart(ctx,{
+        type:'doughnut',
+        data:{ labels:['Protein','Carbs','Fat'], datasets:[{ data:chartData, backgroundColor:chartColors, borderWidth:0 }] },
+        options:{
+          cutout:'72%',
+          plugins:{ legend:{display:false}, tooltip:{enabled: sum>0} },
+          animation:{ duration:400 }
+        }
+      });
+    }
+  }
+
+  async function refreshWeekBars(){
+    var wrap=document.getElementById('week-bars');
+    if(chartRange!=='week'){ wrap.style.display='none'; return; }
+    wrap.style.display='block';
+    var days=await getWeekDailyTotals();
+    var labels=days.map(function(d){ return d.label; });
+    var data=days.map(function(d){ return d.cal; });
+    var colors=days.map(function(d){ return d.cal>goal ? '#AE3752' : '#3F6B4F'; });
+    var ctx=document.getElementById('week-bar-chart').getContext('2d');
+    if(weekBarChart){
+      weekBarChart.data.labels=labels;
+      weekBarChart.data.datasets[0].data=data;
+      weekBarChart.data.datasets[0].backgroundColor=colors;
+      weekBarChart.update();
+    }else if(window.Chart){
+      weekBarChart=new Chart(ctx,{
+        type:'bar',
+        data:{ labels:labels, datasets:[{ data:data, backgroundColor:colors, borderRadius:4, maxBarThickness:30 }] },
+        options:{
+          plugins:{
+            legend:{display:false},
+            tooltip:{ callbacks:{ label:function(c){ return c.parsed.y.toLocaleString()+' cal'; } } }
+          },
+          scales:{
+            y:{ beginAtZero:true, grid:{color:'#D8DCD0'}, ticks:{ font:{family:'IBM Plex Mono', size:10}, color:'#5B6A5E' } },
+            x:{ grid:{display:false}, ticks:{ font:{family:'IBM Plex Mono', size:10}, color:'#5B6A5E' } }
+          },
+          animation:{ duration:400 }
+        }
+      });
+    }
+  }
 
   async function changeQty(id, delta){
     var e = entries.find(function(x){return x.id===id;});
@@ -540,28 +749,44 @@
   async function runSearch(q){
     var resultsEl=document.getElementById('search-results');
     resultsEl.innerHTML='<div class="loading-row"><div class="spinner"></div>Searching…</div>';
+    var fields='code,product_name,brands,nutriments,serving_size,serving_quantity';
+    var nameUrl='https://world.openfoodfacts.org/cgi/search.pl?search_terms='+encodeURIComponent(q)+
+      '&search_simple=1&action=process&json=1&page_size=8&fields='+fields;
+    var brandUrl='https://world.openfoodfacts.org/cgi/search.pl?search_terms=&brands='+encodeURIComponent(q)+
+      '&search_simple=1&action=process&json=1&page_size=8&fields='+fields;
+
+    var nameProducts=[], brandProducts=[], anySucceeded=false;
     try{
-      var fields='code,product_name,brands,nutriments,serving_size,serving_quantity';
-      var nameUrl='https://world.openfoodfacts.org/cgi/search.pl?search_terms='+encodeURIComponent(q)+
-        '&search_simple=1&action=process&json=1&page_size=8&fields='+fields;
-      var brandUrl='https://world.openfoodfacts.org/cgi/search.pl?tagtype_0=brands&tag_contains_0=contains&tag_0='+
-        encodeURIComponent(q)+'&action=process&json=1&page_size=8&fields='+fields;
-      var results=await Promise.all([fetch(nameUrl), fetch(brandUrl)]);
-      var dataArr=await Promise.all(results.map(function(r){ return r.json(); }));
-      var seen={};
-      var products=[];
-      dataArr.forEach(function(data){
-        (data.products||[]).forEach(function(p){
-          if(p.product_name && !seen[p.code]){ seen[p.code]=true; products.push(p); }
-        });
-      });
-      products=products.slice(0,8);
-      if(products.length===0){
-        resultsEl.innerHTML='<div class="empty-state">No matches. Try a different search or add it manually.</div>';
-        return;
-      }
-      resultsEl.innerHTML='';
-      products.forEach(function(p){
+      var r1=await fetch(nameUrl);
+      var d1=await r1.json();
+      nameProducts=d1.products||[];
+      anySucceeded=true;
+    }catch(err){}
+    try{
+      var r2=await fetch(brandUrl);
+      var d2=await r2.json();
+      brandProducts=d2.products||[];
+      anySucceeded=true;
+    }catch(err){}
+
+    if(!anySucceeded){
+      resultsEl.innerHTML='<div class="empty-state">Couldn\'t reach Open Food Facts. Check your connection or add manually.</div>';
+      return;
+    }
+
+    var seen={};
+    var products=[];
+    nameProducts.concat(brandProducts).forEach(function(p){
+      if(p.product_name && !seen[p.code]){ seen[p.code]=true; products.push(p); }
+    });
+    products=products.slice(0,8);
+
+    if(products.length===0){
+      resultsEl.innerHTML='<div class="empty-state">No matches. Try a different search or add it manually.</div>';
+      return;
+    }
+    resultsEl.innerHTML='';
+    products.forEach(function(p){
         var norm=normalizeProduct(p);
         var row=document.createElement('div');
         row.className='search-result';
@@ -574,11 +799,8 @@
           resultsEl.innerHTML='';
           openConfirm(norm, false);
         };
-        resultsEl.appendChild(row);
-      });
-    }catch(err){
-      resultsEl.innerHTML='<div class="empty-state">Couldn\'t reach Open Food Facts. Check your connection or add manually.</div>';
-    }
+      resultsEl.appendChild(row);
+    });
   }
 
   function normalizeProduct(p){
