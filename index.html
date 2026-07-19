@@ -6,29 +6,31 @@
 <title>Ledger — daily food log</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --paper:#EEF1EA;
-    --surface:#FFFFFF;
-    --ink:#1E2A22;
-    --ink-soft:#5B6A5E;
-    --herb:#3F6B4F;
-    --herb-dark:#2E4F3A;
-    --herb-light:#E4EDE3;
-    --berry:#AE3752;
-    --berry-light:#F6E4E8;
-    --amber:#B9791E;
-    --amber-light:#F6EAD8;
-    --line:#D8DCD0;
-    --line-strong:#1E2A22;
+    --bg:#121212;
+    --surface:#1A1A1A;
+    --surface-2:#1F1F1F;
+    --ink:#FFFFFF;
+    --ink-soft:rgba(255,255,255,0.64);
+    --ink-faint:rgba(255,255,255,0.38);
+    --primary:#BB86FC;
+    --primary-variant:#3700B3;
+    --on-primary:#000000;
+    --secondary:#03DAC6;
+    --on-secondary:#000000;
+    --error:#CF6679;
+    --on-error:#000000;
+    --line:rgba(255,255,255,0.12);
+    --line-strong:rgba(255,255,255,0.26);
     --radius:14px;
-    --shadow:0 1px 2px rgba(30,42,34,0.06),0 8px 24px rgba(30,42,34,0.08);
+    --shadow:0 1px 2px rgba(0,0,0,0.4), 0 12px 28px rgba(0,0,0,0.5);
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
   body{
-    background:#DEE4D8;
+    background:var(--bg);
     font-family:'Inter',sans-serif;
     color:var(--ink);
     min-height:100vh;
@@ -41,14 +43,13 @@
     width:100%;
     max-width:480px;
     min-height:100vh;
-    background:var(--paper);
-    box-shadow:var(--shadow);
+    background:var(--bg);
     position:relative;
     padding-bottom:40px;
   }
   @media (min-width:520px){
     body{padding:32px 16px;}
-    #app{min-height:calc(100vh - 64px); border-radius:20px; overflow:hidden;}
+    #app{min-height:calc(100vh - 64px); border-radius:20px; overflow:hidden; box-shadow:var(--shadow);}
   }
 
   header{padding:22px 20px 8px;}
@@ -61,11 +62,11 @@
     margin:0 0 2px;
   }
   h1.brand{
-    font-family:'Fraunces',serif;
-    font-weight:600;
-    font-size:26px;
+    font-family:'Inter',sans-serif;
+    font-weight:800;
+    font-size:25px;
     margin:0 0 16px;
-    letter-spacing:-0.01em;
+    letter-spacing:-0.02em;
   }
   .date-nav{display:flex; align-items:center; justify-content:space-between; gap:8px;}
   .date-nav button.icon-btn{
@@ -78,24 +79,24 @@
     font-family:'IBM Plex Mono',monospace; font-size:14px; font-weight:500;
     text-align:center; flex:1; cursor:pointer; padding:6px 8px; border-radius:8px; position:relative;
   }
-  .date-label:active{background:rgba(30,42,34,0.06);}
-  input#date-picker{position:absolute; opacity:0; pointer-events:none; width:1px;height:1px; left:50%; bottom:-6px;}
+  .date-label:active{background:rgba(255,255,255,0.06);}
+  input#date-picker{position:absolute; opacity:0; pointer-events:none; width:1px;height:1px; left:50%; bottom:-6px; color-scheme:dark;}
 
   .label-card{
-    margin:18px 20px 0; background:var(--surface); border:1.5px solid var(--ink);
-    border-radius:6px; padding:14px 16px 16px;
+    margin:18px 20px 0; background:var(--surface); border:1.5px solid var(--line-strong);
+    border-radius:10px; padding:14px 16px 16px;
   }
-  .label-title{font-family:'Fraunces',serif; font-weight:700; font-size:20px; margin:0 0 6px;}
-  .rule-thick{height:5px; background:var(--ink); margin:0 0 8px;}
+  .label-title{font-family:'Inter',sans-serif; font-weight:700; font-size:18px; margin:0 0 6px; letter-spacing:-0.01em;}
+  .rule-thick{height:3px; background:var(--ink); margin:0 0 8px; border-radius:2px;}
   .rule-thin{height:1px; background:var(--line); margin:8px 0;}
   .cal-row{display:flex; align-items:baseline; justify-content:space-between;}
   .cal-row .cal-label{font-size:15px; font-weight:600;}
   .cal-row .cal-value{font-family:'IBM Plex Mono',monospace; font-size:32px; font-weight:600; letter-spacing:-0.01em;}
   .progress-track{height:6px; border-radius:3px; background:var(--line); margin:10px 0 2px; overflow:hidden;}
-  .progress-fill{height:100%; background:var(--herb); border-radius:3px; transition:width 0.3s ease;}
-  .progress-fill.over{background:var(--berry);}
+  .progress-fill{height:100%; background:var(--primary); border-radius:3px; transition:width 0.3s ease;}
+  .progress-fill.over{background:var(--error);}
   .goal-row{display:flex; justify-content:space-between; font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--ink-soft); margin-top:2px;}
-  .goal-row span.editable{text-decoration:underline dotted; cursor:pointer;}
+  .goal-row span.editable{text-decoration:underline dotted; text-decoration-color:var(--primary); cursor:pointer; color:var(--ink);}
   .macro-row{display:flex; justify-content:space-between; align-items:center; padding:6px 0 6px 14px; font-size:13px;}
   .macro-row .m-label{color:var(--ink-soft);}
   .macro-row .m-value{font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:13px;}
@@ -107,7 +108,7 @@
     font-family:'Inter',sans-serif; font-weight:600; font-size:13.5px;
   }
   .action-btn:active{transform:scale(0.97);}
-  .action-btn.primary{background:var(--herb); color:#fff;}
+  .action-btn.primary{background:var(--primary); color:var(--on-primary);}
   .action-btn.secondary{background:var(--surface); color:var(--ink); border:1px solid var(--line);}
   .action-btn svg{width:22px;height:22px;}
 
@@ -116,39 +117,40 @@
     width:100%; padding:11px 14px 11px 38px; border-radius:10px; border:1px solid var(--line);
     background:var(--surface); font-family:'Inter',sans-serif; font-size:14px; color:var(--ink);
   }
-  .search-row input:focus{outline:2px solid var(--herb); outline-offset:1px;}
+  .search-row input::placeholder{color:var(--ink-faint);}
+  .search-row input:focus{outline:2px solid var(--primary); outline-offset:1px;}
   .search-row svg{position:absolute; left:12px; top:50%; transform:translateY(-50%); width:16px;height:16px; color:var(--ink-soft); pointer-events:none;}
   .search-results{margin-top:8px; display:flex; flex-direction:column; gap:6px;}
   .search-result{
     background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:10px 12px;
     cursor:pointer; display:flex; justify-content:space-between; align-items:center; gap:8px;
   }
-  .search-result:active{background:var(--herb-light);}
+  .search-result:active{background:var(--surface-2);}
   .search-result .sr-name{font-size:13.5px; font-weight:600;}
   .search-result .sr-brand{font-size:11.5px; color:var(--ink-soft);}
   .search-result .sr-cal{font-family:'IBM Plex Mono',monospace; font-size:13px; font-weight:600; white-space:nowrap;}
 
-  .section-title{font-family:'Fraunces',serif; font-weight:600; font-size:17px; margin:24px 20px 10px;}
+  .section-title{font-family:'Inter',sans-serif; font-weight:700; font-size:16px; margin:24px 20px 10px; letter-spacing:-0.01em;}
 
   .macro-card{
     margin:18px 20px 0; background:var(--surface); border:1px solid var(--line);
     border-radius:14px; padding:14px 16px 16px;
   }
   .macro-card-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;}
-  .seg-toggle{display:flex; background:var(--paper); border-radius:20px; padding:3px; gap:2px;}
+  .seg-toggle{display:flex; background:var(--bg); border-radius:20px; padding:3px; gap:2px;}
   .seg-btn{
     border:none; background:none; cursor:pointer; padding:6px 12px; border-radius:16px;
     font-family:'Inter',sans-serif; font-size:12px; font-weight:600; color:var(--ink-soft);
   }
-  .seg-btn.active{background:var(--herb); color:#fff;}
+  .seg-btn.active{background:var(--primary); color:var(--on-primary);}
   .macro-chart-row{display:flex; align-items:center; gap:20px;}
   .macro-chart-wrap{position:relative; width:132px; height:132px; flex:none;}
   .macro-chart-center{
     position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
     display:flex; flex-direction:column; align-items:center; pointer-events:none;
   }
-  .mc-cal{font-family:'IBM Plex Mono',monospace; font-size:19px; font-weight:600; line-height:1;}
-  .mc-cal-label{font-size:10px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.06em; margin-top:2px;}
+  .mc-cal{font-family:'IBM Plex Mono',monospace; font-size:18px; font-weight:600; line-height:1;}
+  .mc-cal-label{font-size:10px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.06em; margin-top:2px; text-align:center;}
   .content-grid{display:block;}
   .col-calories .label-card{margin:18px 20px 0;}
   .col-log .actions{margin:18px 20px 0;}
@@ -165,11 +167,15 @@
 
   .week-bars{margin-top:16px; padding-top:14px; border-top:1px solid var(--line);}
   .week-bars-label{font-size:12px; font-weight:600; color:var(--ink-soft); margin:0 0 10px;}
+  .macro-legend{flex:1; display:flex; flex-direction:column; gap:12px;}
+  .legend-item{display:flex; flex-direction:column; gap:5px; cursor:pointer;}
   .legend-row{display:flex; align-items:center; gap:8px; font-size:12.5px;}
-  .legend-dot{width:10px; height:10px; border-radius:50%; flex:none;}
-  .legend-label{color:var(--ink-soft); flex:1;}
+  .legend-dot{width:9px; height:9px; border-radius:50%; flex:none;}
+  .legend-label{color:var(--ink-soft); flex:1; text-decoration:underline dotted; text-decoration-color:var(--line-strong); text-underline-offset:2px;}
   .legend-val{font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:12px;}
-  .legend-pct{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink-soft); min-width:32px; text-align:right;}
+  .legend-goal{font-family:'IBM Plex Mono',monospace; font-weight:400; font-size:11px; color:var(--ink-faint);}
+  .legend-bar-track{height:4px; border-radius:2px; background:var(--line); margin-left:17px; overflow:hidden;}
+  .legend-bar-fill{height:100%; border-radius:2px; transition:width 0.3s ease;}
   .log-list{display:flex; flex-direction:column; gap:8px; padding:0 20px;}
   .food-card{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:12px 14px;}
   .food-top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px;}
@@ -180,29 +186,30 @@
   .macro-mini{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink-soft); display:flex; gap:8px;}
   .qty-controls{display:flex; align-items:center; gap:8px;}
   .qty-controls button{
-    width:24px;height:24px; border-radius:50%; border:1px solid var(--line); background:var(--paper);
+    width:24px;height:24px; border-radius:50%; border:1px solid var(--line); background:var(--bg);
     cursor:pointer; display:flex;align-items:center;justify-content:center; font-size:14px; color:var(--ink); line-height:1;
   }
   .qty-controls .qty-val{font-family:'IBM Plex Mono',monospace; font-size:12px; min-width:34px; text-align:center;}
   .delete-btn{
-    background:none; border:none; cursor:pointer; color:var(--berry);
+    background:none; border:none; cursor:pointer; color:var(--error);
     display:flex;align-items:center;justify-content:center; width:26px;height:26px; border-radius:50%;
   }
-  .delete-btn:active{background:var(--berry-light);}
+  .delete-btn:active{background:rgba(207,102,121,0.15);}
   .empty-state{
     margin:0 20px; padding:32px 20px; text-align:center; color:var(--ink-soft); font-size:13.5px;
     border:1px dashed var(--line); border-radius:var(--radius);
   }
 
-  .modal-overlay{position:fixed; inset:0; background:rgba(30,42,34,0.45); display:none; align-items:flex-end; justify-content:center; z-index:100;}
+  .modal-overlay{position:fixed; inset:0; background:rgba(0,0,0,0.6); display:none; align-items:flex-end; justify-content:center; z-index:100;}
   .modal-overlay.open{display:flex;}
   .modal{
-    background:var(--paper); width:100%; max-width:480px; border-radius:20px 20px 0 0;
+    background:var(--surface-2); width:100%; max-width:480px; border-radius:20px 20px 0 0;
     padding:18px 20px 28px; max-height:88vh; overflow-y:auto; animation:slideUp 0.22s ease;
+    border-top:1px solid var(--line-strong);
   }
   @keyframes slideUp{from{transform:translateY(24px); opacity:0;} to{transform:translateY(0); opacity:1;}}
   .modal-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;}
-  .modal-head h2{font-family:'Fraunces',serif; font-size:19px; margin:0;}
+  .modal-head h2{font-family:'Inter',sans-serif; font-weight:700; font-size:18px; margin:0; letter-spacing:-0.01em;}
   .modal-close{background:none; border:none; cursor:pointer; width:30px;height:30px; display:flex;align-items:center;justify-content:center; color:var(--ink-soft);}
   .field-label{font-size:12px; font-weight:600; color:var(--ink-soft); margin:12px 0 5px; display:block;}
   .field-label:first-of-type{margin-top:0;}
@@ -210,43 +217,44 @@
     width:100%; padding:10px 12px; border-radius:9px; border:1px solid var(--line);
     background:var(--surface); font-family:'Inter',sans-serif; font-size:14px; color:var(--ink);
   }
-  .modal input:focus{outline:2px solid var(--herb); outline-offset:1px;}
+  .modal input::placeholder{color:var(--ink-faint);}
+  .modal input:focus{outline:2px solid var(--primary); outline-offset:1px;}
   .field-row{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
   .field-row3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;}
   .modal-submit{
     width:100%; margin-top:18px; padding:13px; border-radius:10px; border:none;
-    background:var(--herb); color:#fff; font-weight:600; font-size:14.5px; cursor:pointer;
+    background:var(--primary); color:var(--on-primary); font-weight:700; font-size:14.5px; cursor:pointer;
   }
   .modal-submit:active{transform:scale(0.98);}
 
-  #scan-video-wrap{position:relative; width:100%; aspect-ratio:4/3; background:#0e150f; border-radius:12px; overflow:hidden; margin-bottom:10px;}
+  #scan-video-wrap{position:relative; width:100%; aspect-ratio:4/3; background:#000; border-radius:12px; overflow:hidden; margin-bottom:10px;}
   #scan-video{width:100%;height:100%;object-fit:cover;}
   .scan-frame{
     position:absolute; top:50%;left:50%; transform:translate(-50%,-50%);
-    width:78%; height:34%; border:2px solid rgba(255,255,255,0.85); border-radius:10px;
+    width:78%; height:34%; border:2px solid var(--primary); border-radius:10px;
   }
   .scan-status{text-align:center; font-size:12.5px; color:var(--ink-soft); margin:2px 0 14px;}
   .divider-or{display:flex;align-items:center;gap:10px; color:var(--ink-soft); font-size:11.5px; text-transform:uppercase; letter-spacing:0.08em; margin:14px 0 12px;}
   .divider-or::before,.divider-or::after{content:"";flex:1;height:1px;background:var(--line);}
 
   .confirm-card{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:14px; margin-bottom:14px;}
-  .confirm-name{font-family:'Fraunces',serif; font-weight:600; font-size:16px;}
+  .confirm-name{font-family:'Inter',sans-serif; font-weight:700; font-size:15px; letter-spacing:-0.01em;}
   .confirm-brand{font-size:12.5px; color:var(--ink-soft); margin-top:1px;}
   .confirm-macros{display:flex; gap:14px; margin-top:10px; font-family:'IBM Plex Mono',monospace; font-size:12px;}
   .confirm-qty{display:flex; align-items:center; justify-content:space-between; margin-top:12px; padding-top:12px; border-top:1px solid var(--line);}
   .stepper{display:flex; align-items:center; gap:12px;}
-  .stepper button{width:30px;height:30px; border-radius:50%; border:1px solid var(--line); background:var(--paper); font-size:16px; cursor:pointer;}
+  .stepper button{width:30px;height:30px; border-radius:50%; border:1px solid var(--line); background:var(--bg); color:var(--ink); font-size:16px; cursor:pointer;}
   .stepper .sval{font-family:'IBM Plex Mono',monospace; font-size:14px; min-width:70px; text-align:center;}
 
   .toast{
     position:fixed; bottom:24px;left:50%; transform:translateX(-50%) translateY(80px);
-    background:var(--ink); color:#fff; padding:11px 18px; border-radius:10px; font-size:13px;
+    background:var(--surface-2); color:var(--ink); border:1px solid var(--line-strong); padding:11px 18px; border-radius:10px; font-size:13px;
     z-index:200; opacity:0; transition:all 0.25s ease; pointer-events:none; max-width:88%; text-align:center;
   }
   .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
 
   .loading-row{display:flex;align-items:center;justify-content:center;gap:8px; padding:20px; color:var(--ink-soft); font-size:13px;}
-  .spinner{width:14px;height:14px; border:2px solid var(--line); border-top-color:var(--herb); border-radius:50%; animation:spin 0.7s linear infinite;}
+  .spinner{width:14px;height:14px; border:2px solid var(--line); border-top-color:var(--primary); border-radius:50%; animation:spin 0.7s linear infinite;}
   @keyframes spin{to{transform:rotate(360deg);}}
 </style>
 </head>
@@ -328,7 +336,7 @@
         <canvas id="macro-chart" width="132" height="132"></canvas>
         <div class="macro-chart-center">
           <span class="mc-cal" id="mc-center-cal">0</span>
-          <span class="mc-cal-label">cal</span>
+          <span class="mc-cal-label" id="mc-center-label">cal</span>
         </div>
       </div>
       <div class="macro-legend" id="macro-legend"></div>
@@ -399,10 +407,19 @@
 <script>
 (function(){
 
+  var COLOR_PROTEIN='#03DAC6';
+  var COLOR_CARBS='#BB86FC';
+  var COLOR_FAT='#CF6679';
+  var COLOR_ERROR='#CF6679';
+  var COLOR_GRID='rgba(255,255,255,0.12)';
+  var COLOR_TICK='rgba(255,255,255,0.55)';
+  var COLOR_EMPTY='rgba(255,255,255,0.14)';
+
   var today = new Date();
   var currentDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
   var entries = [];
   var goal = 1350;
+  var macroGoals = {protein:null, carbs:null, fat:null};
   var videoStream = null;
   var scanning = false;
 
@@ -432,11 +449,20 @@
     catch(e){ showToast('Could not save — try again'); }
   }
 
+  function effectiveMacroGoals(){
+    return {
+      protein: macroGoals.protein!=null ? macroGoals.protein : Math.round(goal*0.30/4),
+      carbs: macroGoals.carbs!=null ? macroGoals.carbs : Math.round(goal*0.40/4),
+      fat: macroGoals.fat!=null ? macroGoals.fat : Math.round(goal*0.30/9)
+    };
+  }
+
   async function loadSettings(){
     var s = await storageGet('settings');
     if(s && s.calorieGoal) goal = s.calorieGoal;
+    if(s && s.macroGoals) macroGoals = s.macroGoals;
   }
-  async function saveSettings(){ await storageSet('settings', {calorieGoal: goal}); }
+  async function saveSettings(){ await storageSet('settings', {calorieGoal: goal, macroGoals: macroGoals}); }
   async function loadEntries(d){ var arr = await storageGet('entries:'+dateKey(d)); entries = arr || []; }
   async function saveEntries(d){ await storageSet('entries:'+dateKey(d), entries); }
 
@@ -519,143 +545,6 @@
 
   function renderAll(){ renderHeader(); renderTotals(); renderLog(); refreshMacroChart(); refreshWeekBars(); }
 
-  /* ---------------- macro breakdown chart ---------------- */
-  var chartRange='day';
-  var macroChart=null;
-  var weekBarChart=null;
-
-  document.getElementById('range-day').onclick=function(){ setRange('day'); };
-  document.getElementById('range-week').onclick=function(){ setRange('week'); };
-  function setRange(r){
-    chartRange=r;
-    document.getElementById('range-day').classList.toggle('active', r==='day');
-    document.getElementById('range-week').classList.toggle('active', r==='week');
-    refreshMacroChart();
-    refreshWeekBars();
-  }
-
-  async function getWeekTotals(){
-    var total={cal:0,protein:0,carbs:0,fat:0};
-    for(var i=0;i<7;i++){
-      var d=new Date(today);
-      d.setDate(d.getDate()-i);
-      var arr=await storageGet('entries:'+dateKey(d));
-      (arr||[]).forEach(function(e){
-        var mult=e.multiplier||1;
-        total.cal += (e.calories||0)*mult;
-        total.protein += (e.protein||0)*mult;
-        total.carbs += (e.carbs||0)*mult;
-        total.fat += (e.fat||0)*mult;
-      });
-    }
-    return total;
-  }
-
-  async function getWeekDailyTotals(){
-    var days=[];
-    for(var i=6;i>=0;i--){
-      var d=new Date(today);
-      d.setDate(d.getDate()-i);
-      var arr=await storageGet('entries:'+dateKey(d));
-      var cal=0;
-      (arr||[]).forEach(function(e){ cal += (e.calories||0)*(e.multiplier||1); });
-      days.push({ label: d.toLocaleDateString(undefined,{weekday:'short'}), cal: Math.round(cal), isToday: dateKey(d)===dateKey(today) });
-    }
-    return days;
-  }
-
-  async function refreshMacroChart(){
-    var totals = chartRange==='day' ? computeTotals() : await getWeekTotals();
-    var pCal=(totals.protein||0)*4, cCal=(totals.carbs||0)*4, fCal=(totals.fat||0)*9;
-    var sum=pCal+cCal+fCal;
-
-    var centerCal=document.getElementById('mc-center-cal');
-    centerCal.textContent = Math.round(totals.cal).toLocaleString();
-    var centerLabel=document.querySelector('.mc-cal-label');
-    centerLabel.textContent = chartRange==='day' ? 'cal' : 'cal / week';
-
-    var legend=document.getElementById('macro-legend');
-    var rows=[
-      {label:'Protein', grams:round(totals.protein), cal:pCal, color:'#3F6B4F'},
-      {label:'Carbs', grams:round(totals.carbs), cal:cCal, color:'#B9791E'},
-      {label:'Fat', grams:round(totals.fat), cal:fCal, color:'#AE3752'}
-    ];
-    legend.innerHTML='';
-    rows.forEach(function(r){
-      var pct = sum>0 ? Math.round((r.cal/sum)*100) : 0;
-      var row=document.createElement('div');
-      row.className='legend-row';
-      row.innerHTML='<span class="legend-dot" style="background:'+r.color+'"></span>'+
-        '<span class="legend-label">'+r.label+'</span>'+
-        '<span class="legend-val">'+r.grams+'g</span>'+
-        '<span class="legend-pct">'+pct+'%</span>';
-      legend.appendChild(row);
-    });
-    if(chartRange==='week'){
-      var avgRow=document.createElement('div');
-      avgRow.className='legend-row';
-      avgRow.style.marginTop='2px';
-      avgRow.style.paddingTop='8px';
-      avgRow.style.borderTop='1px solid var(--line)';
-      avgRow.innerHTML='<span class="legend-dot" style="background:transparent"></span>'+
-        '<span class="legend-label">Daily average</span>'+
-        '<span class="legend-val">'+Math.round(totals.cal/7)+' cal</span><span class="legend-pct"></span>';
-      legend.appendChild(avgRow);
-    }
-
-    var ctx=document.getElementById('macro-chart').getContext('2d');
-    var chartData = sum>0 ? [pCal,cCal,fCal] : [1,1,1];
-    var chartColors = sum>0 ? ['#3F6B4F','#B9791E','#AE3752'] : ['#E4E7DF','#E4E7DF','#E4E7DF'];
-    if(macroChart){
-      macroChart.data.datasets[0].data=chartData;
-      macroChart.data.datasets[0].backgroundColor=chartColors;
-      macroChart.update();
-    }else if(window.Chart){
-      macroChart=new Chart(ctx,{
-        type:'doughnut',
-        data:{ labels:['Protein','Carbs','Fat'], datasets:[{ data:chartData, backgroundColor:chartColors, borderWidth:0 }] },
-        options:{
-          cutout:'72%',
-          plugins:{ legend:{display:false}, tooltip:{enabled: sum>0} },
-          animation:{ duration:400 }
-        }
-      });
-    }
-  }
-
-  async function refreshWeekBars(){
-    var wrap=document.getElementById('week-bars');
-    if(chartRange!=='week'){ wrap.style.display='none'; return; }
-    wrap.style.display='block';
-    var days=await getWeekDailyTotals();
-    var labels=days.map(function(d){ return d.label; });
-    var data=days.map(function(d){ return d.cal; });
-    var colors=days.map(function(d){ return d.cal>goal ? '#AE3752' : '#3F6B4F'; });
-    var ctx=document.getElementById('week-bar-chart').getContext('2d');
-    if(weekBarChart){
-      weekBarChart.data.labels=labels;
-      weekBarChart.data.datasets[0].data=data;
-      weekBarChart.data.datasets[0].backgroundColor=colors;
-      weekBarChart.update();
-    }else if(window.Chart){
-      weekBarChart=new Chart(ctx,{
-        type:'bar',
-        data:{ labels:labels, datasets:[{ data:data, backgroundColor:colors, borderRadius:4, maxBarThickness:30 }] },
-        options:{
-          plugins:{
-            legend:{display:false},
-            tooltip:{ callbacks:{ label:function(c){ return c.parsed.y.toLocaleString()+' cal'; } } }
-          },
-          scales:{
-            y:{ beginAtZero:true, grid:{color:'#D8DCD0'}, ticks:{ font:{family:'IBM Plex Mono', size:10}, color:'#5B6A5E' } },
-            x:{ grid:{display:false}, ticks:{ font:{family:'IBM Plex Mono', size:10}, color:'#5B6A5E' } }
-          },
-          animation:{ duration:400 }
-        }
-      });
-    }
-  }
-
   async function changeQty(id, delta){
     var e = entries.find(function(x){return x.id===id;});
     if(!e) return;
@@ -705,7 +594,7 @@
     var v=prompt('Set your daily calorie goal', goal);
     if(v===null) return;
     var n=parseInt(v,10);
-    if(!isNaN(n) && n>0){ goal=n; saveSettings(); renderTotals(); }
+    if(!isNaN(n) && n>0){ goal=n; saveSettings(); renderTotals(); refreshMacroChart(); refreshWeekBars(); }
   };
 
   var manualOverlay=document.getElementById('manual-overlay');
@@ -737,37 +626,42 @@
     manualOverlay.classList.remove('open');
   };
 
+  /* ---------------- search (Open Food Facts) ---------------- */
   var searchTimer=null;
+  var searchAbort=null;
   document.getElementById('search-input').addEventListener('input', function(e){
     var q=e.target.value.trim();
     clearTimeout(searchTimer);
     var resultsEl=document.getElementById('search-results');
     if(q.length<2){ resultsEl.innerHTML=''; return; }
-    searchTimer=setTimeout(function(){ runSearch(q); }, 500);
+    searchTimer=setTimeout(function(){ runSearch(q); }, 300);
   });
 
   async function runSearch(q){
     var resultsEl=document.getElementById('search-results');
     resultsEl.innerHTML='<div class="loading-row"><div class="spinner"></div>Searching…</div>';
+
+    if(searchAbort){ searchAbort.abort(); }
+    var controller = new AbortController();
+    searchAbort = controller;
+
     var fields='code,product_name,brands,nutriments,serving_size,serving_quantity';
     var nameUrl='https://world.openfoodfacts.org/cgi/search.pl?search_terms='+encodeURIComponent(q)+
       '&search_simple=1&action=process&json=1&page_size=8&fields='+fields;
     var brandUrl='https://world.openfoodfacts.org/cgi/search.pl?search_terms=&brands='+encodeURIComponent(q)+
       '&search_simple=1&action=process&json=1&page_size=8&fields='+fields;
 
-    var nameProducts=[], brandProducts=[], anySucceeded=false;
-    try{
-      var r1=await fetch(nameUrl);
-      var d1=await r1.json();
-      nameProducts=d1.products||[];
-      anySucceeded=true;
-    }catch(err){}
-    try{
-      var r2=await fetch(brandUrl);
-      var d2=await r2.json();
-      brandProducts=d2.products||[];
-      anySucceeded=true;
-    }catch(err){}
+    var settled = await Promise.allSettled([
+      fetch(nameUrl, {signal:controller.signal}).then(function(r){ return r.json(); }),
+      fetch(brandUrl, {signal:controller.signal}).then(function(r){ return r.json(); })
+    ]);
+
+    if(controller.signal.aborted) return;
+
+    var anySucceeded=false;
+    var nameProducts=[], brandProducts=[];
+    if(settled[0].status==='fulfilled'){ anySucceeded=true; nameProducts=settled[0].value.products||[]; }
+    if(settled[1].status==='fulfilled'){ anySucceeded=true; brandProducts=settled[1].value.products||[]; }
 
     if(!anySucceeded){
       resultsEl.innerHTML='<div class="empty-state">Couldn\'t reach Open Food Facts. Check your connection or add manually.</div>';
@@ -787,18 +681,18 @@
     }
     resultsEl.innerHTML='';
     products.forEach(function(p){
-        var norm=normalizeProduct(p);
-        var row=document.createElement('div');
-        row.className='search-result';
-        row.innerHTML='<div><div class="sr-name"></div><div class="sr-brand"></div></div><div class="sr-cal"></div>';
-        row.querySelector('.sr-name').textContent=norm.name;
-        row.querySelector('.sr-brand').textContent=norm.brand||'';
-        row.querySelector('.sr-cal').textContent=Math.round(norm.calories)+' cal';
-        row.onclick=function(){
-          document.getElementById('search-input').value='';
-          resultsEl.innerHTML='';
-          openConfirm(norm, false);
-        };
+      var norm=normalizeProduct(p);
+      var row=document.createElement('div');
+      row.className='search-result';
+      row.innerHTML='<div><div class="sr-name"></div><div class="sr-brand"></div></div><div class="sr-cal"></div>';
+      row.querySelector('.sr-name').textContent=norm.name;
+      row.querySelector('.sr-brand').textContent=norm.brand||'';
+      row.querySelector('.sr-cal').textContent=Math.round(norm.calories)+' cal';
+      row.onclick=function(){
+        document.getElementById('search-input').value='';
+        resultsEl.innerHTML='';
+        openConfirm(norm, false);
+      };
       resultsEl.appendChild(row);
     });
   }
@@ -942,6 +836,168 @@
       openConfirm(norm, insideScanModal);
     }catch(err){
       container.innerHTML='<div class="empty-state">Couldn\'t reach Open Food Facts. Check your connection or add manually.</div>';
+    }
+  }
+
+  /* ---------------- macro breakdown + goals ---------------- */
+  var chartRange='day';
+  var macroChart=null;
+  var weekBarChart=null;
+
+  document.getElementById('range-day').onclick=function(){ setRange('day'); };
+  document.getElementById('range-week').onclick=function(){ setRange('week'); };
+  function setRange(r){
+    chartRange=r;
+    document.getElementById('range-day').classList.toggle('active', r==='day');
+    document.getElementById('range-week').classList.toggle('active', r==='week');
+    refreshMacroChart();
+    refreshWeekBars();
+  }
+
+  async function getWeekTotals(){
+    var total={cal:0,protein:0,carbs:0,fat:0};
+    for(var i=0;i<7;i++){
+      var d=new Date(today);
+      d.setDate(d.getDate()-i);
+      var arr=await storageGet('entries:'+dateKey(d));
+      (arr||[]).forEach(function(e){
+        var mult=e.multiplier||1;
+        total.cal += (e.calories||0)*mult;
+        total.protein += (e.protein||0)*mult;
+        total.carbs += (e.carbs||0)*mult;
+        total.fat += (e.fat||0)*mult;
+      });
+    }
+    return total;
+  }
+
+  async function getWeekDailyTotals(){
+    var days=[];
+    for(var i=6;i>=0;i--){
+      var d=new Date(today);
+      d.setDate(d.getDate()-i);
+      var arr=await storageGet('entries:'+dateKey(d));
+      var cal=0;
+      (arr||[]).forEach(function(e){ cal += (e.calories||0)*(e.multiplier||1); });
+      days.push({ label: d.toLocaleDateString(undefined,{weekday:'short'}), cal: Math.round(cal) });
+    }
+    return days;
+  }
+
+  function editMacroGoal(macro, label){
+    var current = effectiveMacroGoals()[macro];
+    var v = prompt('Set your daily '+label+' goal (grams)', current);
+    if(v===null) return;
+    var n = parseInt(v,10);
+    if(!isNaN(n) && n>0){
+      macroGoals[macro]=n;
+      saveSettings();
+      refreshMacroChart();
+    }
+  }
+
+  async function refreshMacroChart(){
+    var totals = chartRange==='day' ? computeTotals() : await getWeekTotals();
+    var isWeek = chartRange==='week';
+    var pCal=(totals.protein||0)*4, cCal=(totals.carbs||0)*4, fCal=(totals.fat||0)*9;
+    var sum=pCal+cCal+fCal;
+    var goals=effectiveMacroGoals();
+
+    var centerCal=document.getElementById('mc-center-cal');
+    centerCal.textContent = Math.round(totals.cal).toLocaleString();
+    document.getElementById('mc-center-label').textContent = isWeek ? 'cal / week' : 'cal';
+
+    var actualPerDay = {
+      protein: isWeek ? totals.protein/7 : totals.protein,
+      carbs: isWeek ? totals.carbs/7 : totals.carbs,
+      fat: isWeek ? totals.fat/7 : totals.fat
+    };
+
+    var legend=document.getElementById('macro-legend');
+    var rows=[
+      {key:'protein', label:'Protein', grams:round(totals.protein), goalGrams:goals.protein, actual:actualPerDay.protein, color:COLOR_PROTEIN},
+      {key:'carbs', label:'Carbs', grams:round(totals.carbs), goalGrams:goals.carbs, actual:actualPerDay.carbs, color:COLOR_CARBS},
+      {key:'fat', label:'Fat', grams:round(totals.fat), goalGrams:goals.fat, actual:actualPerDay.fat, color:COLOR_FAT}
+    ];
+    legend.innerHTML='';
+    rows.forEach(function(r){
+      var pctOfGoal = r.goalGrams>0 ? Math.round((r.actual/r.goalGrams)*100) : 0;
+      var barPct = Math.min(100, pctOfGoal);
+      var barColor = pctOfGoal>100 ? COLOR_ERROR : r.color;
+      var item=document.createElement('div');
+      item.className='legend-item';
+      var displayGrams = isWeek ? round(r.actual) : r.grams;
+      item.innerHTML=
+        '<div class="legend-row">'+
+          '<span class="legend-dot" style="background:'+r.color+'"></span>'+
+          '<span class="legend-label">'+r.label+(isWeek?' (avg)':'')+'</span>'+
+          '<span class="legend-val">'+displayGrams+'g <span class="legend-goal">/ '+r.goalGrams+'g · '+pctOfGoal+'%</span></span>'+
+        '</div>'+
+        '<div class="legend-bar-track"><div class="legend-bar-fill" style="width:'+barPct+'%; background:'+barColor+'"></div></div>';
+      item.onclick=function(){ editMacroGoal(r.key, r.label); };
+      legend.appendChild(item);
+    });
+
+    var avgRow=document.createElement('div');
+    avgRow.className='legend-item';
+    avgRow.style.cursor='default';
+    avgRow.style.paddingTop='4px';
+    avgRow.style.borderTop='1px solid var(--line)';
+    avgRow.innerHTML='<div class="legend-row"><span class="legend-label" style="text-decoration:none;">'+
+      (isWeek?'Daily average':'Calorie goal')+'</span><span class="legend-val">'+
+      (isWeek ? Math.round(totals.cal/7).toLocaleString()+' cal' : goal.toLocaleString()+' cal')+'</span></div>';
+    legend.appendChild(avgRow);
+
+    var ctx=document.getElementById('macro-chart').getContext('2d');
+    var chartData = sum>0 ? [pCal,cCal,fCal] : [1,1,1];
+    var chartColors = sum>0 ? [COLOR_PROTEIN,COLOR_CARBS,COLOR_FAT] : [COLOR_EMPTY,COLOR_EMPTY,COLOR_EMPTY];
+    if(macroChart){
+      macroChart.data.datasets[0].data=chartData;
+      macroChart.data.datasets[0].backgroundColor=chartColors;
+      macroChart.update();
+    }else if(window.Chart){
+      macroChart=new Chart(ctx,{
+        type:'doughnut',
+        data:{ labels:['Protein','Carbs','Fat'], datasets:[{ data:chartData, backgroundColor:chartColors, borderWidth:0 }] },
+        options:{
+          cutout:'72%',
+          plugins:{ legend:{display:false}, tooltip:{enabled: sum>0} },
+          animation:{ duration:400 }
+        }
+      });
+    }
+  }
+
+  async function refreshWeekBars(){
+    var wrap=document.getElementById('week-bars');
+    if(chartRange!=='week'){ wrap.style.display='none'; return; }
+    wrap.style.display='block';
+    var days=await getWeekDailyTotals();
+    var labels=days.map(function(d){ return d.label; });
+    var data=days.map(function(d){ return d.cal; });
+    var colors=days.map(function(d){ return d.cal>goal ? COLOR_ERROR : COLOR_PROTEIN; });
+    var ctx=document.getElementById('week-bar-chart').getContext('2d');
+    if(weekBarChart){
+      weekBarChart.data.labels=labels;
+      weekBarChart.data.datasets[0].data=data;
+      weekBarChart.data.datasets[0].backgroundColor=colors;
+      weekBarChart.update();
+    }else if(window.Chart){
+      weekBarChart=new Chart(ctx,{
+        type:'bar',
+        data:{ labels:labels, datasets:[{ data:data, backgroundColor:colors, borderRadius:4, maxBarThickness:30 }] },
+        options:{
+          plugins:{
+            legend:{display:false},
+            tooltip:{ callbacks:{ label:function(c){ return c.parsed.y.toLocaleString()+' cal'; } } }
+          },
+          scales:{
+            y:{ beginAtZero:true, grid:{color:COLOR_GRID}, ticks:{ font:{family:'IBM Plex Mono', size:10}, color:COLOR_TICK } },
+            x:{ grid:{display:false}, ticks:{ font:{family:'IBM Plex Mono', size:10}, color:COLOR_TICK } }
+          },
+          animation:{ duration:400 }
+        }
+      });
     }
   }
 
