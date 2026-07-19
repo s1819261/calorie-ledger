@@ -629,16 +629,41 @@
   /* ---------------- search (Open Food Facts) ---------------- */
   var searchTimer=null;
   var searchAbort=null;
+  var searchCache={};
   document.getElementById('search-input').addEventListener('input', function(e){
     var q=e.target.value.trim();
     clearTimeout(searchTimer);
     var resultsEl=document.getElementById('search-results');
     if(q.length<2){ resultsEl.innerHTML=''; return; }
-    searchTimer=setTimeout(function(){ runSearch(q); }, 300);
+    searchTimer=setTimeout(function(){ runSearch(q); }, 350);
   });
+
+  async function fetchJsonWithRetry(url, signal){
+    for(var attempt=0; attempt<2; attempt++){
+      try{
+        var res=await fetch(url, {signal:signal});
+        if(res.status===503 && attempt===0){
+          await new Promise(function(r){ setTimeout(r, 800); });
+          continue;
+        }
+        if(!res.ok) return null;
+        return await res.json();
+      }catch(err){
+        if(signal && signal.aborted) throw err;
+        if(attempt===0){ await new Promise(function(r){ setTimeout(r, 800); }); continue; }
+        return null;
+      }
+    }
+    return null;
+  }
 
   async function runSearch(q){
     var resultsEl=document.getElementById('search-results');
+    var cacheKey=q.toLowerCase();
+    if(searchCache[cacheKey]){
+      renderSearchResults(searchCache[cacheKey], resultsEl);
+      return;
+    }
     resultsEl.innerHTML='<div class="loading-row"><div class="spinner"></div>Searching…</div>';
 
     if(searchAbort){ searchAbort.abort(); }
@@ -651,20 +676,35 @@
     var brandUrl='https://world.openfoodfacts.org/cgi/search.pl?search_terms=&brands='+encodeURIComponent(q)+
       '&search_simple=1&action=process&json=1&page_size=8&fields='+fields;
 
-    var settled = await Promise.allSettled([
-      fetch(nameUrl, {signal:controller.signal}).then(function(r){ return r.json(); }),
-      fetch(brandUrl, {signal:controller.signal}).then(function(r){ return r.json(); })
-    ]);
-
+    var nameData, nameFailed=false;
+    try{
+      nameData = await fetchJsonWithRetry(nameUrl, controller.signal);
+    }catch(err){
+      if(controller.signal.aborted) return;
+      nameFailed=true;
+    }
     if(controller.signal.aborted) return;
 
-    var anySucceeded=false;
-    var nameProducts=[], brandProducts=[];
-    if(settled[0].status==='fulfilled'){ anySucceeded=true; nameProducts=settled[0].value.products||[]; }
-    if(settled[1].status==='fulfilled'){ anySucceeded=true; brandProducts=settled[1].value.products||[]; }
+    var nameProducts = (nameData && nameData.products) ? nameData.products : [];
+    var brandProducts = [];
+    var brandFailed = false;
 
-    if(!anySucceeded){
-      resultsEl.innerHTML='<div class="empty-state">Couldn\'t reach Open Food Facts. Check your connection or add manually.</div>';
+    // Only spend a second request on the brand search if the name search
+    // came back empty or failed — halves how many calls we make per search.
+    if(nameProducts.length===0){
+      var brandData;
+      try{
+        brandData = await fetchJsonWithRetry(brandUrl, controller.signal);
+      }catch(err){
+        if(controller.signal.aborted) return;
+        brandFailed=true;
+      }
+      if(controller.signal.aborted) return;
+      brandProducts = (brandData && brandData.products) ? brandData.products : [];
+    }
+
+    if(nameFailed && brandFailed){
+      resultsEl.innerHTML='<div class="empty-state">Open Food Facts isn\'t responding right now (this happens on their end sometimes). Try again in a bit, or add it manually.</div>';
       return;
     }
 
@@ -674,7 +714,11 @@
       if(p.product_name && !seen[p.code]){ seen[p.code]=true; products.push(p); }
     });
     products=products.slice(0,8);
+    searchCache[cacheKey]=products;
+    renderSearchResults(products, resultsEl);
+  }
 
+  function renderSearchResults(products, resultsEl){
     if(products.length===0){
       resultsEl.innerHTML='<div class="empty-state">No matches. Try a different search or add it manually.</div>';
       return;
