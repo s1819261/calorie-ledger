@@ -672,9 +672,9 @@
 
     var fields='code,product_name,brands,nutriments,serving_size,serving_quantity';
     var nameUrl='https://world.openfoodfacts.org/cgi/search.pl?search_terms='+encodeURIComponent(q)+
-      '&search_simple=1&action=process&json=1&page_size=8&fields='+fields;
+      '&search_simple=1&action=process&json=1&page_size=8&lc=en&fields='+fields;
     var brandUrl='https://world.openfoodfacts.org/cgi/search.pl?search_terms=&brands='+encodeURIComponent(q)+
-      '&search_simple=1&action=process&json=1&page_size=8&fields='+fields;
+      '&search_simple=1&action=process&json=1&page_size=8&lc=en&fields='+fields;
 
     var nameData, nameFailed=false;
     try{
@@ -869,7 +869,7 @@
     container.innerHTML='<div class="loading-row"><div class="spinner"></div>Looking up product…</div>';
     try{
       var url='https://world.openfoodfacts.org/api/v2/product/'+encodeURIComponent(code)+
-        '.json?fields=code,product_name,brands,nutriments,serving_size,serving_quantity';
+        '.json?lc=en&fields=code,product_name,brands,nutriments,serving_size,serving_quantity';
       var res=await fetch(url);
       var data=await res.json();
       if(data.status!==1 || !data.product || !data.product.product_name){
